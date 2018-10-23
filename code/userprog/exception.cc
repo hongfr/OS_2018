@@ -90,7 +90,7 @@ void ExceptionHandler(ExceptionType which)
 					ASSERTNOTREACHED();
 					break;
 				case SC_Create:
-					val = kernel->machine->ReadRegister(4); //TODO how to pass to r4?
+					val = kernel->machine->ReadRegister(4);
 					{
 						char *filename = &(kernel->machine->mainMemory[val]);
 						//cout << filename << endl;

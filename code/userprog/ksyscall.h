@@ -56,10 +56,7 @@ int SysClose(OpenFileId id)
   // return kernel->fileSystem->Open(filename);
   
   // kernel->fileSystem->Open(filename);
-  if(kernel->fileSystem->Close(id) < 0)
-    return  -1;
-  else
-    return 1;
+  return kernel->fileSystem->Close(id);
 
 }
 
