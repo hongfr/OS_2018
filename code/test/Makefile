@@ -113,7 +113,7 @@ PROGRAMS = unknownhost
 else
 # change this if you create a new test program!
 #PROGRAMS = add halt shell matmult sort segments test1 test2 a
-PROGRAMS = add halt createFile fileIO_test1 fileIO_test2
+PROGRAMS = add halt createFile fileIO_test1 fileIO_test2 mem_test1 mem_test2
 endif
 
 all: $(PROGRAMS)
@@ -158,23 +158,17 @@ matmult: matmult.o start.o
 	$(LD) $(LDFLAGS) start.o matmult.o -o matmult.coff
 	$(COFF2NOFF) matmult.coff matmult
 
-consoleIO_test1.o: consoleIO_test1.c
-	$(CC) $(CFLAGS) -c consoleIO_test1.c
-consoleIO_test1: consoleIO_test1.o start.o
-	$(LD) $(LDFLAGS) start.o consoleIO_test1.o -o consoleIO_test1.coff
-	$(COFF2NOFF) consoleIO_test1.coff consoleIO_test1
+mem_test1.o: mem_test1.c
+	$(CC) $(CFLAGS) -c mem_test1.c
+mem_test1: mem_test1.o start.o
+	$(LD) $(LDFLAGS) start.o  mem_test1.o -o mem_test1.coff
+	$(COFF2NOFF) mem_test1.coff mem_test1
 
-consoleIO_test2.o: consoleIO_test2.c
-	$(CC) $(CFLAGS) -c consoleIO_test2.c
-consoleIO_test2: consoleIO_test2.o start.o
-	$(LD) $(LDFLAGS) start.o consoleIO_test2.o -o consoleIO_test2.coff
-	$(COFF2NOFF) consoleIO_test2.coff consoleIO_test2
-	
-consoleIO_test3.o: consoleIO_test3.c
-	$(CC) $(CFLAGS) -c consoleIO_test3.c
-consoleIO_test3: consoleIO_test3.o start.o
-	$(LD) $(LDFLAGS) start.o consoleIO_test3.o -o consoleIO_test3.coff
-	$(COFF2NOFF) consoleIO_test3.coff consoleIO_test3
+mem_test2.o: mem_test2.c
+	$(CC) $(CFLAGS) -c mem_test2.c
+mem_test2: mem_test2.o start.o
+	$(LD) $(LDFLAGS) start.o mem_test2.o -o mem_test2.coff
+	$(COFF2NOFF) mem_test2.coff mem_test2
 
 fileIO_test1.o: fileIO_test1.c
 	$(CC) $(CFLAGS) -c fileIO_test1.c
@@ -195,12 +189,6 @@ createFile: createFile.o start.o
 	$(LD) $(LDFLAGS) start.o createFile.o -o createFile.coff
 	$(COFF2NOFF) createFile.coff createFile
 
-
-openFile.o: openFile.c
-	$(CC) $(CFLAGS) -c openFile.c
-openFile: openFile.o start.o
-	$(LD) $(LDFLAGS) start.o openFile.o -o openFile.coff
-	$(COFF2NOFF) openFile.coff openFile
 
 clean:
 	$(RM) -f *.o *.ii
