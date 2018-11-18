@@ -71,9 +71,9 @@ class Kernel {
 
     int hostName;               // machine identifier
 
-	int threadNum;
   private:
 
+	int threadNum;
 	Thread* t[10];
 	char*   execfile[10];
 	int execfileNum;

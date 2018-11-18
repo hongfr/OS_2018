@@ -271,7 +271,7 @@ void Kernel::ExecAll()
 int Kernel::Exec(char* name)
 {
 	t[threadNum] = new Thread(name, threadNum);
-	t[threadNum]->space = new AddrSpace();
+	t[threadNum]->space = new AddrSpace(threadNum);
 	t[threadNum]->Fork((VoidFunctionPtr) &ForkExecute, (void *)t[threadNum]);
 	threadNum++;
 

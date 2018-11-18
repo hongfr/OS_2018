@@ -62,14 +62,14 @@ SwapHeader(NoffHeader *noffH)
 //	only uniprogramming, and we have a single unsegmented page table
 //----------------------------------------------------------------------
 
-AddrSpace::AddrSpace()
+AddrSpace::AddrSpace(int threadNum)
 {
     pageTable = new TranslationEntry[NumPhysPages];
     // cout << "thread num:" << kernel->threadNum << endl;
     for (int i = 0; i < NumPhysPages/10; i++)
     {
         pageTable[i].virtualPage = i; // for now, virt page # = phys page #
-        pageTable[i].physicalPage = i + NumPhysPages / 10 * kernel->threadNum;
+        pageTable[i].physicalPage = i + NumPhysPages / 10 * threadNum;
         pageTable[i].valid = TRUE;
         pageTable[i].use = FALSE;
         pageTable[i].dirty = FALSE;
@@ -148,8 +148,8 @@ bool AddrSpace::Load(char *fileName)
     unsigned int noff_initData_physicalAddr;
     unsigned int noff_readonlyData_physicalAddr;
     Translate(noffH.code.virtualAddr, &noff_code_physicalAddr, FALSE);
-    Translate(noffH.code.virtualAddr, &noff_initData_physicalAddr, FALSE);
-    Translate(noffH.code.virtualAddr, &noff_readonlyData_physicalAddr, FALSE);
+    Translate(noffH.initData.virtualAddr, &noff_initData_physicalAddr, FALSE);
+    Translate(noffH.readonlyData.virtualAddr, &noff_readonlyData_physicalAddr, FALSE);
 
     if (noffH.code.size > 0)
     {
