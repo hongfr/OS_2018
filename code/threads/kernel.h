@@ -18,6 +18,7 @@
 #include "alarm.h"
 #include "filesys.h"
 #include "machine.h"
+#include "list.h"
 
 class PostOfficeInput;
 class PostOfficeOutput;
@@ -36,8 +37,8 @@ class Kernel {
     void Initialize(); 		// initialize the kernel -- separated
 				// from constructor because 
 				// refers to "kernel" as a global
-    void ExecAll();
-    int Exec(char* name);
+    void ExecAll(List *ThreadPriority);
+    int Exec(char* name, int priority);
     void ThreadSelfTest();	// self test of threads and synchronization
 	
     void ConsoleTest();         // interactive console self test

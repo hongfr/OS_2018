@@ -45,6 +45,9 @@
 #include "filesys.h"
 #include "openfile.h"
 #include "sysdep.h"
+#include "list.h"
+
+#include "stdlib.h"
 
 // global variables
 Kernel *kernel;
@@ -169,6 +172,11 @@ int main(int argc, char **argv)
     bool threadTestFlag = false;
     bool consoleTestFlag = false;
     bool networkTestFlag = false;
+
+    // Modified !!!!!!!!!!!!!!
+    List<int> *ThreadPriority = new List<int>;   
+    // Modified !!!!!!!!!!!!!!
+
 #ifndef FILESYS_STUB
     char *copyUnixFileName = NULL;   // UNIX file to be copied into Nachos
     char *copyNachosFileName = NULL; // name of copied file in Nachos
@@ -251,6 +259,12 @@ int main(int argc, char **argv)
             cout << "Partial usage: nachos [-l] [-D]\n";
 #endif //FILESYS_STUB
         }
+        // Modified !!!!!!!!!!!!!!
+        else if(strcmp(argv[i], "-ep") == 0)
+        {
+            ThreadPiority->Append(atoi(argv[i+1]));
+        }
+        // Modified !!!!!!!!!!!!!!
     }
     debug = new Debug(debugArg);
 
@@ -304,7 +318,10 @@ int main(int argc, char **argv)
 
     // finally, run an initial user program if requested to do so
 
-    kernel->ExecAll();
+    // Modified !!!!!!!!!!!!!!
+    kernel->ExecAll(ThreadPriority);
+    // Modified !!!!!!!!!!!!!!
+
     // If we don't run a user program, we may get here.
     // Calling "return" would terminate the program.
     // Instead, call Halt, which will first clean up, then

@@ -39,11 +39,12 @@ class Scheduler {
 
     
   // Modified !!!!!!!!!!!!!!
-    List <Thread *> *L1_list;
-    List <Thread *> *L2_list[50];
+    SortedList <Thread *> *L1_list;
+    SortedList <Thread *> *L2_list;
     List <Thread *> *L3_list;
     
   // Modified !!!!!!!!!!!!!!
+
 				// but not running
     Thread *toBeDestroyed;	// finishing thread to be destroyed
     				// by the next thread that runs

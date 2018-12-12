@@ -17,6 +17,7 @@
 #include "synchdisk.h"
 #include "post.h"
 #include "synchconsole.h"
+#include "list.h"
 
 //----------------------------------------------------------------------
 // Kernel::Kernel
@@ -258,19 +259,21 @@ void ForkExecute(Thread *t)
 
 }
 
-void Kernel::ExecAll()
+// Modified !!!!!!!!!!!!!!
+void Kernel::ExecAll(List *ThreadPriority)
 {
 	for (int i=1;i<=execfileNum;i++) {
-		int a = Exec(execfile[i]);
+        int priority = ThreadPriority->RemoveFront();
+		int a = Exec(execfile[i], priority);
 	}
 	currentThread->Finish();
     //Kernel::Exec();
 }
 
-
-int Kernel::Exec(char* name)
+// Modified !!!!!!!!!!!!!!
+int Kernel::Exec(char* name, int priority)
 {
-	t[threadNum] = new Thread(name, threadNum);
+    t[threadNum] = new Thread(name, threadNum, priority);
 	t[threadNum]->space = new AddrSpace(threadNum);
 	t[threadNum]->Fork((VoidFunctionPtr) &ForkExecute, (void *)t[threadNum]);
 	threadNum++;

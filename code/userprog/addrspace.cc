@@ -64,7 +64,7 @@ SwapHeader(NoffHeader *noffH)
 
 AddrSpace::AddrSpace(int threadNum)
 {
-    pageTable = new TranslationEntry[NumPhysPages];
+    pageTable = new TranslationEntry[NumPhysPages/10];
     // cout << "thread num:" << kernel->threadNum << endl;
     for (int i = 0; i < NumPhysPages/10; i++)
     {

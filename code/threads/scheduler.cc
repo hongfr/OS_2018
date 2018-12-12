@@ -39,12 +39,8 @@ Scheduler::Scheduler()
 {
     
   // Modified !!!!!!!!!!!!!!
-    L1_list = new List<Thread *>;
-    for (int i=0;i<50;i++)
-    {
-        L2_list[i] = new List<Thread *>;
-    }
-    // L2_list = new SortedList<Thread *> ();
+    L1_list = new SortedList<Thread *>;
+    L2_list = new SortedList<Thread *>;
     L3_list = new List<Thread *>;
     
   // Modified !!!!!!!!!!!!!!

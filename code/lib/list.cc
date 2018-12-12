@@ -246,14 +246,14 @@ SortedList<T>::Insert(T item)
     } else {		// look for first elt in list bigger than item
         for (ptr = this->first; ptr->next != NULL; ptr = ptr->next) {
             if (compare(item, ptr->next->item) < 0) {
-		element->next = ptr->next;
-	        ptr->next = element;
-		this->numInList++;
-		return;
+                element->next = ptr->next;
+                ptr->next = element;
+                this->numInList++;
+                return;
+	        }
 	    }
-	}
-	this->last->next = element;		// item goes at end of list
-	this->last = element;
+        this->last->next = element;		// item goes at end of list
+        this->last = element;
     }
     this->numInList++;
     ASSERT(IsInList(item));
