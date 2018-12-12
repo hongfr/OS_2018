@@ -121,7 +121,16 @@ private:
   ThreadStatus status; // ready, running or blocked
   char *name;
   int ID;
+
+  // Modified !!!!!!!!!!!!!!
+  int previous_cpu_burst;
+  int cur_cpu_burst;
+  int priority;
+  int aging;
+  // Modified !!!!!!!!!!!!!!
+
   void StackAllocate(VoidFunctionPtr func, void *arg);
+
   // Allocate a stack for thread.
   // Used internally by Fork()
 

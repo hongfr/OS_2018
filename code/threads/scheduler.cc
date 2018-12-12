@@ -29,8 +29,25 @@
 //	Initially, no ready threads.
 //----------------------------------------------------------------------
 
+// int comp (Thread* T1, Thread* T2)
+// {
+//     if (T1->);
+// }
+
+
 Scheduler::Scheduler()
 {
+    
+  // Modified !!!!!!!!!!!!!!
+    L1_list = new List<Thread *>;
+    for (int i=0;i<50;i++)
+    {
+        L2_list[i] = new List<Thread *>;
+    }
+    // L2_list = new SortedList<Thread *> ();
+    L3_list = new List<Thread *>;
+    
+  // Modified !!!!!!!!!!!!!!
     readyList = new List<Thread *>;
     toBeDestroyed = NULL;
 }
@@ -42,6 +59,14 @@ Scheduler::Scheduler()
 
 Scheduler::~Scheduler()
 {
+    delete L1_list;
+    // delete L2_list;
+    
+    for (int i=0;i<50;i++)
+    {
+        delete L2_list[i];
+    }
+    delete L3_list;
     delete readyList;
 }
 
@@ -179,4 +204,10 @@ void Scheduler::Print()
 {
     cout << "Ready list contents:\n";
     readyList->Apply(ThreadPrint);
+}
+
+int exponential_average(int cur_exec_time, int previous_exec_time)
+{
+    int approximate = 0.5 * cur_exec_time + 0.5 * previous_exec_time;
+    return approximate;
 }
