@@ -37,7 +37,8 @@ class Kernel {
     void Initialize(); 		// initialize the kernel -- separated
 				// from constructor because 
 				// refers to "kernel" as a global
-    void ExecAll(List *ThreadPriority);
+    // void ExecAll(List <int> *ThreadPriority);
+    void ExecAll(void);
     int Exec(char* name, int priority);
     void ThreadSelfTest();	// self test of threads and synchronization
 	
@@ -78,6 +79,9 @@ class Kernel {
 	Thread* t[10];
 	char*   execfile[10];
 	int execfileNum;
+
+    int initial_priority[10];
+    
     bool randomSlice;		// enable pseudo-random time slicing
     bool debugUserProg;         // single step user program
     double reliability;         // likelihood messages are dropped

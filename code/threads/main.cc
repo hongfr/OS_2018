@@ -191,6 +191,8 @@ int main(int argc, char **argv)
     // the Kernel constructor
     for (i = 1; i < argc; i++)
     {
+        //debug
+        cout << "argc" << i << endl;
         if (strcmp(argv[i], "-d") == 0)
         {
             ASSERT(i + 1 < argc); // next argument is debug string
@@ -260,14 +262,15 @@ int main(int argc, char **argv)
 #endif //FILESYS_STUB
         }
         // Modified !!!!!!!!!!!!!!
-        else if(strcmp(argv[i], "-ep") == 0)
-        {
-            // debug
+        // else if(strcmp(argv[i], "-ep") == 0)
+        // {
+        //     // debug
                 
-            cout << "Priority: " << atoi(argv[i+1]) << " \n";
-            // debug
-            ThreadPiority->Append(atoi(argv[i+1]));
-        }
+        //     cout << "Priority: " << atoi(argv[i+2]) << " \n";
+        //     // debug
+        //     ThreadPiority->Append(atoi(argv[i+2]));
+        //     i+=2;
+        // }
         // Modified !!!!!!!!!!!!!!
     }
     debug = new Debug(debugArg);
@@ -323,7 +326,9 @@ int main(int argc, char **argv)
     // finally, run an initial user program if requested to do so
 
     // Modified !!!!!!!!!!!!!!
-    kernel->ExecAll(ThreadPriority);
+    // kernel->ExecAll(ThreadPriority);
+    kernel->ExecAll();
+
     // Modified !!!!!!!!!!!!!!
 
     // If we don't run a user program, we may get here.

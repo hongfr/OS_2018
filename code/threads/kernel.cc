@@ -54,8 +54,19 @@ Kernel::Kernel(int argc, char **argv)
         else if (strcmp(argv[i], "-e") == 0)
         {
             execfile[++execfileNum] = argv[++i];
+
+// Modified !!!!!!!!!!!!!!
+            initial_priority[execfileNum] = 0;  // by default 0
             cout << execfile[execfileNum] << "\n";
         }
+        else if (strcmp(argv[i], "-ep") == 0)
+        {
+            execfile[++execfileNum] = argv[++i];
+            initial_priority[execfileNum] = atoi(argv[++i]);
+            cout << execfile[execfileNum] << "\n";
+            // i++;
+        }
+// Modified !!!!!!!!!!!!!!
         else if (strcmp(argv[i], "-ci") == 0)
         {
             ASSERT(i + 1 < argc);
@@ -112,7 +123,7 @@ void Kernel::Initialize()
     // But if it ever tries to give up the CPU, we better have a Thread
     // object to save its state.
 
-    currentThread = new Thread("main", threadNum++);
+    currentThread = new Thread("main", threadNum++, 149);
     currentThread->setStatus(RUNNING);
 
     stats = new Statistics();       // collect statistics
@@ -132,6 +143,7 @@ void Kernel::Initialize()
     postOfficeOut = new PostOfficeOutput(reliability);
 
     interrupt->Enable();
+
 }
 
 //----------------------------------------------------------------------
@@ -277,11 +289,14 @@ void ForkExecute(Thread *t)
 }
 
 // Modified !!!!!!!!!!!!!!
-void Kernel::ExecAll(List *ThreadPriority)
+// void Kernel::ExecAll(List *ThreadPriority)
+void Kernel::ExecAll()
 {
+
     for (int i = 1; i <= execfileNum; i++)
     {
-        int priority = ThreadPriority->RemoveFront();
+        // int priority = ThreadPriority->RemoveFront();
+        int priority = initial_priority[i];
         int a = Exec(execfile[i], priority);
     }
     currentThread->Finish();

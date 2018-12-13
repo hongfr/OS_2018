@@ -41,6 +41,28 @@ Thread::Thread(char *threadName, int threadID, int priority_)
   // Modified !!!!!!!!!!!!!!
     priority = priority_;
   // Modified !!!!!!!!!!!!!!
+    cout << "Thread:" << threadName <<" id: " << threadID << " priority: " << priority << endl;
+  
+    stackTop = NULL;
+    stack = NULL;
+    status = JUST_CREATED;
+    for (int i = 0; i < MachineStateSize; i++)
+    {
+        machineState[i] = NULL; // not strictly necessary, since
+                                // new thread ignores contents
+                                // of machine registers
+    }
+    space = NULL;
+}
+
+Thread::Thread(char *threadName, int threadID)
+{
+    ID = threadID;
+    name = threadName;
+    
+  // Modified !!!!!!!!!!!!!!
+    priority = 0;
+  // Modified !!!!!!!!!!!!!!
   
     stackTop = NULL;
     stack = NULL;

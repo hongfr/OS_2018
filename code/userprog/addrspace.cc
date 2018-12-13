@@ -337,7 +337,7 @@ AddrSpace::Translate(unsigned int vaddr, unsigned int *paddr, int isReadWrite)
 
     // if the pageFrame is too big, there is something really wrong!
     // An invalid translation was loaded into the page table or TLB.
-    if (pfn >= NumPhysPages/10)
+    if (pfn >= NumPhysPages)
     {
         DEBUG(dbgAddr, "Illegal physical page " << pfn);
         return BusErrorException;

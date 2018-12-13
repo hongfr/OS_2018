@@ -87,6 +87,8 @@ private:
 
 public:
   Thread(char *debugName, int threadID, int priority_); // initialize a Thread
+  Thread(char *debugName, int threadID);
+  //Thread(char *debugName, int threadID, int priority_);
   ~Thread();                             // deallocate a Thread
                                          // NOTE -- thread being deleted
                                          // must not be running when delete

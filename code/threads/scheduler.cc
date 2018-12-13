@@ -105,26 +105,26 @@ void Scheduler::ReadyToRun(Thread *thread)
     readyList->Append(thread);
 
     // Modified !!!!!!!!!!!!!!
-    if (thread->priority < 50)
-    {
-        L3_list.Append(thread);
-        DEBUG(dbgThread, "Thread[" << kernel->currentThread->getID() <<"] is inserted into queue L1");
-    }
-    else if (thread->priority < 100)
-    {
-        L2_list.Insert(thread);
-        DEBUG(dbgThread, "Thread[" << kernel->currentThread->getID() <<"] is inserted into queue L2");
-    }
-    else if (thread->priority < 150)
-    {
-        L1_list.Insert(thread);
-        DEBUG(dbgThread, "Thread[" << kernel->currentThread->getID() <<"] is inserted into queue L3");
-    }
-    else
-    {
-        DEBUG(dbgThread, "Invalid Priority: " << thread->priority);
-        ASSERTNOTREACHED();
-    }
+    // if (thread->priority < 50)
+    // {
+    //     L3_list->Append(thread);
+    //     DEBUG(dbgThread, "Thread[" << kernel->currentThread->getID() <<"] is inserted into queue L1");
+    // }
+    // else if (thread->priority < 100)
+    // {
+    //     L2_list->Insert(thread);
+    //     DEBUG(dbgThread, "Thread[" << kernel->currentThread->getID() <<"] is inserted into queue L2");
+    // }
+    // else if (thread->priority < 150)
+    // {
+    //     L1_list->Insert(thread);
+    //     DEBUG(dbgThread, "Thread[" << kernel->currentThread->getID() <<"] is inserted into queue L3");
+    // }
+    // else
+    // {
+    //     DEBUG(dbgThread, "Invalid Priority: " << thread->priority);
+    //     ASSERTNOTREACHED();
+    // }
     // Modified !!!!!!!!!!!!!!
 }
 
