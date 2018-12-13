@@ -29,18 +29,33 @@
 //	Initially, no ready threads.
 //----------------------------------------------------------------------
 
-// int comp (Thread* T1, Thread* T2)
-// {
-//     if (T1->);
-// }
+int compare_time (Thread* T1, Thread* T2)
+{
+    int T1_time = T1->approximate_burst;
+    int T2_time = T2->approximate_burst;
+    if (T1_time < T2_time)  return -1;
+    else if (T1_time == T2_time)    return 0;
+    else if (T1_time > T2_time) return 1;
+}
+
+int compare_priority (Thread* T1, Thread* T2)
+{
+    int T1_priority = T1->priority;
+    int T2_priority = T2->priority;
+    // Sorted list always pop the smallest 
+    // thus, reverse
+    if (T1_priority < T2_priority)  return 1;
+    else if (T1_priority == T2_priority)    return 0;
+    else if (T1_priority > T2_priority) return -1;
+}
 
 
 Scheduler::Scheduler()
 {
     
   // Modified !!!!!!!!!!!!!!
-    L1_list = new SortedList<Thread *>;
-    L2_list = new SortedList<Thread *>;
+    L1_list = new SortedList<Thread *> (compare_time); //shortest job first
+    L2_list = new SortedList<Thread *> (compare_priority); // highest priority first 
     L3_list = new List<Thread *>;
     
   // Modified !!!!!!!!!!!!!!

@@ -127,6 +127,7 @@ private:
   int cur_cpu_burst;
   int priority;
   int aging;
+  int approximate_burst;
   // Modified !!!!!!!!!!!!!!
 
   void StackAllocate(VoidFunctionPtr func, void *arg);
