@@ -262,6 +262,10 @@ int main(int argc, char **argv)
         // Modified !!!!!!!!!!!!!!
         else if(strcmp(argv[i], "-ep") == 0)
         {
+            // debug
+                
+            cout << "Priority: " << atoi(argv[i+1]) << " \n";
+            // debug
             ThreadPiority->Append(atoi(argv[i+1]));
         }
         // Modified !!!!!!!!!!!!!!

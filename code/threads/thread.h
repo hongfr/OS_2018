@@ -112,6 +112,15 @@ public:
   void Print() { cout << name; }
   void SelfTest(); // test whether thread impl is working
 
+  
+  // Modified !!!!!!!!!!!!!!
+  int previous_cpu_burst;
+  int cur_cpu_burst;
+  int priority;
+  int aging;
+  int approximate_burst;
+  // Modified !!!!!!!!!!!!!!
+
 private:
   // some of the private data for this class is listed above
 
@@ -122,13 +131,6 @@ private:
   char *name;
   int ID;
 
-  // Modified !!!!!!!!!!!!!!
-  int previous_cpu_burst;
-  int cur_cpu_burst;
-  int priority;
-  int aging;
-  int approximate_burst;
-  // Modified !!!!!!!!!!!!!!
 
   void StackAllocate(VoidFunctionPtr func, void *arg);
 

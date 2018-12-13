@@ -29,36 +29,43 @@
 //	Initially, no ready threads.
 //----------------------------------------------------------------------
 
-int compare_time (Thread* T1, Thread* T2)
+// Modified !!!!!!!!!!!!!!
+int compare_time(Thread *T1, Thread *T2)
 {
     int T1_time = T1->approximate_burst;
     int T2_time = T2->approximate_burst;
-    if (T1_time < T2_time)  return -1;
-    else if (T1_time == T2_time)    return 0;
-    else if (T1_time > T2_time) return 1;
+    if (T1_time < T2_time)
+        return -1;
+    else if (T1_time == T2_time)
+        return 0;
+    else if (T1_time > T2_time)
+        return 1;
 }
-
-int compare_priority (Thread* T1, Thread* T2)
+int compare_priority(Thread *T1, Thread *T2)
 {
     int T1_priority = T1->priority;
     int T2_priority = T2->priority;
-    // Sorted list always pop the smallest 
-    // thus, reverse
-    if (T1_priority < T2_priority)  return 1;
-    else if (T1_priority == T2_priority)    return 0;
-    else if (T1_priority > T2_priority) return -1;
-}
+    // Sorted list always pop the smallest
 
+    // But we want the largest priority -->Reverse the comparison
+    if (T1_priority < T2_priority)
+        return 1;
+    else if (T1_priority == T2_priority)
+        return 0;
+    else if (T1_priority > T2_priority)
+        return -1;
+}
+// Modified !!!!!!!!!!!!!!
 
 Scheduler::Scheduler()
 {
-    
-  // Modified !!!!!!!!!!!!!!
-    L1_list = new SortedList<Thread *> (compare_time); //shortest job first
-    L2_list = new SortedList<Thread *> (compare_priority); // highest priority first 
+
+    // Modified !!!!!!!!!!!!!!
+    L1_list = new SortedList<Thread *>(compare_time);     //shortest job first
+    L2_list = new SortedList<Thread *>(compare_priority); // highest priority first
     L3_list = new List<Thread *>;
-    
-  // Modified !!!!!!!!!!!!!!
+
+    // Modified !!!!!!!!!!!!!!
     readyList = new List<Thread *>;
     toBeDestroyed = NULL;
 }
@@ -71,12 +78,12 @@ Scheduler::Scheduler()
 Scheduler::~Scheduler()
 {
     delete L1_list;
-    // delete L2_list;
-    
-    for (int i=0;i<50;i++)
-    {
-        delete L2_list[i];
-    }
+    delete L2_list;
+
+    // for (int i=0;i<50;i++)
+    // {
+    //     delete L2_list[i];
+    // }
     delete L3_list;
     delete readyList;
 }
@@ -96,6 +103,29 @@ void Scheduler::ReadyToRun(Thread *thread)
     //cout << "Putting thread on ready list: " << thread->getName() << endl ;
     thread->setStatus(READY);
     readyList->Append(thread);
+
+    // Modified !!!!!!!!!!!!!!
+    if (thread->priority < 50)
+    {
+        L3_list.Append(thread);
+        DEBUG(dbgThread, "Thread[" << kernel->currentThread->getID() <<"] is inserted into queue L1");
+    }
+    else if (thread->priority < 100)
+    {
+        L2_list.Insert(thread);
+        DEBUG(dbgThread, "Thread[" << kernel->currentThread->getID() <<"] is inserted into queue L2");
+    }
+    else if (thread->priority < 150)
+    {
+        L1_list.Insert(thread);
+        DEBUG(dbgThread, "Thread[" << kernel->currentThread->getID() <<"] is inserted into queue L3");
+    }
+    else
+    {
+        DEBUG(dbgThread, "Invalid Priority: " << thread->priority);
+        ASSERTNOTREACHED();
+    }
+    // Modified !!!!!!!!!!!!!!
 }
 
 //----------------------------------------------------------------------
