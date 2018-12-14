@@ -102,29 +102,29 @@ void Scheduler::ReadyToRun(Thread *thread)
     DEBUG(dbgThread, "Putting thread on ready list: " << thread->getName());
     //cout << "Putting thread on ready list: " << thread->getName() << endl ;
     thread->setStatus(READY);
-    readyList->Append(thread);
+    // readyList->Append(thread);
 
     // Modified !!!!!!!!!!!!!!
-    // if (thread->priority < 50)
-    // {
-    //     L3_list->Append(thread);
-    //     DEBUG(dbgThread, "Thread[" << kernel->currentThread->getID() <<"] is inserted into queue L1");
-    // }
-    // else if (thread->priority < 100)
-    // {
-    //     L2_list->Insert(thread);
-    //     DEBUG(dbgThread, "Thread[" << kernel->currentThread->getID() <<"] is inserted into queue L2");
-    // }
-    // else if (thread->priority < 150)
-    // {
-    //     L1_list->Insert(thread);
-    //     DEBUG(dbgThread, "Thread[" << kernel->currentThread->getID() <<"] is inserted into queue L3");
-    // }
-    // else
-    // {
-    //     DEBUG(dbgThread, "Invalid Priority: " << thread->priority);
-    //     ASSERTNOTREACHED();
-    // }
+    if (thread->priority < 50)
+    {
+        L3_list->Append(thread);
+        DEBUG(dbgThread, "Thread[" << kernel->currentThread->getID() <<"] is inserted into queue L1");
+    }
+    else if (thread->priority < 100)
+    {
+        L2_list->Insert(thread);
+        DEBUG(dbgThread, "Thread[" << kernel->currentThread->getID() <<"] is inserted into queue L2");
+    }
+    else if (thread->priority < 150)
+    {
+        L1_list->Insert(thread);
+        DEBUG(dbgThread, "Thread[" << kernel->currentThread->getID() <<"] is inserted into queue L3");
+    }
+    else
+    {
+        DEBUG(dbgThread, "Invalid Priority: " << thread->priority);
+        ASSERTNOTREACHED();
+    }
     // Modified !!!!!!!!!!!!!!
 }
 
@@ -139,8 +139,26 @@ void Scheduler::ReadyToRun(Thread *thread)
 Thread *
 Scheduler::FindNextToRun()
 {
+    Thread * t;
     ASSERT(kernel->interrupt->getLevel() == IntOff);
-
+    if (!L1_list->IsEmpty())
+    {
+        t = L1_list->RemoveFront();
+        DEBUG(dbgThread, "Thread[" << t->getID() <<"] is removed from queue L1");
+        return t;
+    }
+    else if (!L2_list->IsEmpty())
+    {
+        t = L2_list->RemoveFront();
+        DEBUG(dbgThread, "Thread[" << t->getID() <<"] is removed from queue L2");
+        return t;
+    }
+    else if (!L3_list->IsEmpty)
+    {
+        t = L3_list->RemoveFront();
+        DEBUG(dbgThread, "Thread[" << t->getID() <<"] is removed from queue L3");
+        return t;
+    }
     if (readyList->IsEmpty())
     {
         return NULL;
