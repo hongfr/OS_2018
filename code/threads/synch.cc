@@ -86,6 +86,8 @@ void Semaphore::P()
         queue->Append(currentThread); // so go to sleep
         currentThread->Sleep(FALSE);
     }
+
+    cout << "Finish P()" << endl;
     value--; // semaphore available, consume its value
 
     // re-enable interrupts
@@ -108,12 +110,17 @@ void Semaphore::V()
     // disable interrupts
     IntStatus oldLevel = interrupt->SetLevel(IntOff);
 
+    // Modified !!!!!!!!!!!!!!
+    kernel->interrupt->YieldOnReturn();
+    // Modified !!!!!!!!!!!!!!
+
+    // cout << "queue front()" << queue->Front()->getName() << endl;
     if (!queue->IsEmpty())
     { // make thread ready.
         kernel->scheduler->ReadyToRun(queue->RemoveFront());
     }
     value++;
-
+    cout << "value++" << endl;
     // re-enable interrupts
     (void)interrupt->SetLevel(oldLevel);
 }

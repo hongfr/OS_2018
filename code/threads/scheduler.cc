@@ -107,22 +107,22 @@ void Scheduler::ReadyToRun(Thread *thread)
     // Modified !!!!!!!!!!!!!!
     if (thread->priority < 50)
     {
+        DEBUG(dbgSch, "\n##Tick ["<< kernel->stats->totalTicks << "]:Thread[" << thread->getID() <<"] is inserted into queue L3 " << "// "<< thread->getName());
         L3_list->Append(thread);
-        DEBUG(dbgThread, "Thread[" << kernel->currentThread->getID() <<"] is inserted into queue L1");
     }
     else if (thread->priority < 100)
     {
+        DEBUG(dbgSch, "\n##Tick ["<< kernel->stats->totalTicks << "]:Thread[" << thread->getID() <<"] is inserted into queue L2 " << "// "<< thread->getName());
         L2_list->Insert(thread);
-        DEBUG(dbgThread, "Thread[" << kernel->currentThread->getID() <<"] is inserted into queue L2");
     }
     else if (thread->priority < 150)
     {
+        DEBUG(dbgSch, "\n##Tick ["<< kernel->stats->totalTicks << "]:Thread[" << thread->getID() <<"] is inserted into queue L1 " << "// "<< thread->getName());
         L1_list->Insert(thread);
-        DEBUG(dbgThread, "Thread[" << kernel->currentThread->getID() <<"] is inserted into queue L3");
     }
     else
     {
-        DEBUG(dbgThread, "Invalid Priority: " << thread->priority);
+        DEBUG(dbgSch, "Invalid Priority: " << thread->priority);
         ASSERTNOTREACHED();
     }
     // Modified !!!!!!!!!!!!!!
@@ -141,32 +141,42 @@ Scheduler::FindNextToRun()
 {
     Thread * t;
     ASSERT(kernel->interrupt->getLevel() == IntOff);
-    if (!L1_list->IsEmpty())
+    if (! (L1_list->IsEmpty()))
     {
         t = L1_list->RemoveFront();
-        DEBUG(dbgThread, "Thread[" << t->getID() <<"] is removed from queue L1");
+        DEBUG(dbgSch, "\n##Tick ["<< kernel->stats->totalTicks << "]:Thread[" << t->getID() <<"] is removed from queue L1 " << "// "<< t->getName());
         return t;
     }
-    else if (!L2_list->IsEmpty())
+    else if (! (L2_list->IsEmpty()))
     {
+        bool currentThread_in_L2 = (kernel->currentThread->priority / 50 == 1);
+        bool currentThread_not_sleep_or_finish = (kernel->currentThread->getStatus() != BLOCKED);
+        if(currentThread_in_L2 && currentThread_not_sleep_or_finish) // current thread in L2 and running
+            cout << "currentThread_in_L2 && currentThread_not_sleep_or_finish" << endl;
+            return kernel->currentThread;                            // do not reschedule (L2 is non-preemptive)
+
         t = L2_list->RemoveFront();
-        DEBUG(dbgThread, "Thread[" << t->getID() <<"] is removed from queue L2");
+        DEBUG(dbgSch, "\n##Tick ["<< kernel->stats->totalTicks << "]:Thread[" << t->getID() <<"] is removed from queue L2 " << "// "<< t->getName());
         return t;
     }
-    else if (!L3_list->IsEmpty)
+    else if (! (L3_list->IsEmpty()))
     {
         t = L3_list->RemoveFront();
-        DEBUG(dbgThread, "Thread[" << t->getID() <<"] is removed from queue L3");
+        DEBUG(dbgSch, "\n##Tick ["<< kernel->stats->totalTicks << "]:Thread[" << t->getID() <<"] is removed from queue L3 " << "// "<< t->getName());
         return t;
-    }
-    if (readyList->IsEmpty())
-    {
-        return NULL;
     }
     else
     {
-        return readyList->RemoveFront();
+        return NULL;
     }
+    // if (readyList->IsEmpty())
+    // {
+    //     return NULL;
+    // }
+    // else
+    // {
+    //     return readyList->RemoveFront();
+    // }
 }
 
 //----------------------------------------------------------------------
@@ -229,12 +239,13 @@ void Scheduler::Run(Thread *nextThread, bool finishing)
     CheckToBeDestroyed(); // check if thread we were running
                           // before this one has finished
                           // and needs to be cleaned up
-
     if (oldThread->space != NULL)
     {                                  // if there is an address space
         oldThread->RestoreUserState(); // to restore, do it.
         oldThread->space->RestoreState();
     }
+
+    cout << "Finish Scheduler::Run()" << endl;
 }
 
 //----------------------------------------------------------------------

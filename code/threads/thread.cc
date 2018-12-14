@@ -40,8 +40,8 @@ Thread::Thread(char *threadName, int threadID, int priority_)
     
   // Modified !!!!!!!!!!!!!!
     priority = priority_;
-  // Modified !!!!!!!!!!!!!!
     cout << "Thread:" << threadName <<" id: " << threadID << " priority: " << priority << endl;
+  // Modified !!!!!!!!!!!!!!
   
     stackTop = NULL;
     stack = NULL;
@@ -62,7 +62,10 @@ Thread::Thread(char *threadName, int threadID)
     
   // Modified !!!!!!!!!!!!!!
     priority = 0;
+
+    cout << "Thread:" << threadName <<" id: " << threadID << " priority: " << priority << endl;
   // Modified !!!!!!!!!!!!!!
+
   
     stackTop = NULL;
     stack = NULL;
@@ -231,12 +234,13 @@ void Thread::Yield()
     DEBUG(dbgThread, "Yielding thread: " << name);
 
     nextThread = kernel->scheduler->FindNextToRun();
-    if (nextThread != NULL)
+    if (nextThread != NULL && nextThread != kernel->currentThread)
     {
         kernel->scheduler->ReadyToRun(this);
         kernel->scheduler->Run(nextThread, FALSE);
     }
     (void)kernel->interrupt->SetLevel(oldLevel);
+    cout << "Finish yield" << endl;
 }
 
 //----------------------------------------------------------------------
@@ -276,7 +280,11 @@ void Thread::Sleep(bool finishing)
         kernel->interrupt->Idle(); // no one to run, wait for an interrupt
     }
     // returns when it's time for us to run
+    // if(kernel->currentThread != nextThread)
     kernel->scheduler->Run(nextThread, finishing);
+    // kernel->currentThread->setStatus(RUNNING);
+    cout << "Finish sleep" << endl;
+    cout << kernel->currentThread->getStatus() << endl;
 }
 
 //----------------------------------------------------------------------
