@@ -125,6 +125,8 @@ class Interrupt {
     				// by the hardware device simulators.
     
     void OneTick();       	// Advance simulated time
+    
+    bool timer_interrupt; // The interrupt is caused by timer
 
   private:
     IntStatus level;		// are interrupts enabled or disabled?

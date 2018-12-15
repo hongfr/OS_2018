@@ -1,18 +1,18 @@
 // scheduler.cc
-//	Routines to choose the next thread to run, and to dispatch to
-//	that thread.
+//  Routines to choose the next thread to run, and to dispatch to
+//  that thread.
 //
-// 	These routines assume that interrupts are already disabled.
-//	If interrupts are disabled, we can assume mutual exclusion
-//	(since we are on a uniprocessor).
+//  These routines assume that interrupts are already disabled.
+//  If interrupts are disabled, we can assume mutual exclusion
+//  (since we are on a uniprocessor).
 //
-// 	NOTE: We can't use Locks to provide mutual exclusion here, since
-// 	if we needed to wait for a lock, and the lock was busy, we would
-//	end up calling FindNextToRun(), and that would put us in an
-//	infinite loop.
+//  NOTE: We can't use Locks to provide mutual exclusion here, since
+//  if we needed to wait for a lock, and the lock was busy, we would
+//  end up calling FindNextToRun(), and that would put us in an
+//  infinite loop.
 //
-// 	Very simple implementation -- no priorities, straight FIFO.
-//	Might need to be improved in later assignments.
+//  Very simple implementation -- no priorities, straight FIFO.
+//  Might need to be improved in later assignments.
 //
 // Copyright (c) 1992-1996 The Regents of the University of California.
 // All rights reserved.  See copyright.h for copyright notice and limitation
@@ -25,8 +25,8 @@
 
 //----------------------------------------------------------------------
 // Scheduler::Scheduler
-// 	Initialize the list of ready but not running threads.
-//	Initially, no ready threads.
+//  Initialize the list of ready but not running threads.
+//  Initially, no ready threads.
 //----------------------------------------------------------------------
 
 // Modified !!!!!!!!!!!!!!
@@ -72,7 +72,7 @@ Scheduler::Scheduler()
 
 //----------------------------------------------------------------------
 // Scheduler::~Scheduler
-// 	De-allocate the list of ready threads.
+//  De-allocate the list of ready threads.
 //----------------------------------------------------------------------
 
 Scheduler::~Scheduler()
@@ -90,16 +90,16 @@ Scheduler::~Scheduler()
 
 //----------------------------------------------------------------------
 // Scheduler::ReadyToRun
-// 	Mark a thread as ready, but not running.
-//	Put it on the ready list, for later scheduling onto the CPU.
+//  Mark a thread as ready, but not running.
+//  Put it on the ready list, for later scheduling onto the CPU.
 //
-//	"thread" is the thread to be put on the ready list.
+//  "thread" is the thread to be put on the ready list.
 //----------------------------------------------------------------------
 
 void Scheduler::ReadyToRun(Thread *thread)
 {
     ASSERT(kernel->interrupt->getLevel() == IntOff);
-    DEBUG(dbgThread, "Putting thread on ready list: " << thread->getName());
+    // DEBUG(dbgThread, "Putting thread on ready list: " << thread->getName());
     //cout << "Putting thread on ready list: " << thread->getName() << endl ;
     thread->setStatus(READY);
     // readyList->Append(thread);
@@ -130,10 +130,10 @@ void Scheduler::ReadyToRun(Thread *thread)
 
 //----------------------------------------------------------------------
 // Scheduler::FindNextToRun
-// 	Return the next thread to be scheduled onto the CPU.
-//	If there are no ready threads, return NULL.
+//  Return the next thread to be scheduled onto the CPU.
+//  If there are no ready threads, return NULL.
 // Side effect:
-//	Thread is removed from the ready list.
+//  Thread is removed from the ready list.
 //----------------------------------------------------------------------
 
 Thread *
@@ -143,27 +143,77 @@ Scheduler::FindNextToRun()
     ASSERT(kernel->interrupt->getLevel() == IntOff);
     if (! (L1_list->IsEmpty()))
     {
-        t = L1_list->RemoveFront();
-        DEBUG(dbgSch, "\n##Tick ["<< kernel->stats->totalTicks << "]:Thread[" << t->getID() <<"] is removed from queue L1 " << "// "<< t->getName());
-        return t;
+
+        bool removeFront = FALSE;
+        if(kernel->currentThread->getStatus() == BLOCKED)
+        {
+            removeFront = TRUE;
+        }
+
+        int cur_remain = kernel->currentThread->approximate_burst - kernel->currentThread->cur_cpu_burst;
+        t = L1_list->Front();
+        if(kernel->currentThread->priority / 50 <=1)
+            removeFront = TRUE;
+
+        if(cur_remain > t->approximate_burst)
+        {
+            removeFront = TRUE;
+        }
+
+        if(removeFront)
+        {
+            t = L1_list->RemoveFront(); 
+            t->aging = 0;
+            DEBUG(dbgSch, "\n##Tick ["<< kernel->stats->totalTicks << "]:Thread[" << t->getID() 
+                <<"] is removed from queue L1 " << "// "<< t->getName());
+            // DEBUG(dbgSch, "\n##Tick ["<< kernel->stats->totalTicks << "]:Thread[" << t->getID() 
+            //     <<"] is now selected for execution" << "// "<< t->getName());
+    
+            return t;        
+        }
+        else
+        {
+            return kernel->currentThread;
+        }
     }
+    // L2 is non preemptive, select new one only when previous thread is sleeping(or finisg)
     else if (! (L2_list->IsEmpty()))
     {
-        bool currentThread_in_L2 = (kernel->currentThread->priority / 50 == 1);
-        bool currentThread_not_sleep_or_finish = (kernel->currentThread->getStatus() != BLOCKED);
-        // if(currentThread_in_L2 && currentThread_not_sleep_or_finish) // current thread in L2 and running
-        //     cout << "!!!currentThread_in_L2 && currentThread_not_sleep_or_finish" << endl;
-        //     return kernel->currentThread;                            // do not reschedule (L2 is non-preemptive)
-
-        t = L2_list->RemoveFront();
-        DEBUG(dbgSch, "\n##Tick ["<< kernel->stats->totalTicks << "]:Thread[" << t->getID() <<"] is removed from queue L2 " << "// "<< t->getName());
-        return t;
+        // Sleeping Thread
+        if(kernel->currentThread->getStatus() == BLOCKED)
+        {
+            t = L2_list->RemoveFront();
+            t->aging = 0;
+            DEBUG(dbgSch, "\n##Tick ["<< kernel->stats->totalTicks << "]:Thread[" << t->getID() 
+                <<"] is removed from queue L2 " << "// "<< t->getName());
+            
+            DEBUG(dbgSch, "\n##Tick ["<< kernel->stats->totalTicks << "]:Thread[" << t->getID() 
+                <<"] is now selected for execution" << "// "<< t->getName());
+            return t;
+        }
+        else
+        {
+            return kernel->currentThread;
+        }
+        
     }
     else if (! (L3_list->IsEmpty()))
     {
-        t = L3_list->RemoveFront();
-        DEBUG(dbgSch, "\n##Tick ["<< kernel->stats->totalTicks << "]:Thread[" << t->getID() <<"] is removed from queue L3 " << "// "<< t->getName());
-        return t;
+        // Timer interrupt and running thread is in L3                      or             sleeping thread
+        if(kernel->interrupt->timer_interrupt && (kernel->currentThread->priority < 50) || kernel->currentThread->getStatus() == BLOCKED)
+        {
+            t = L3_list->RemoveFront();
+            t->aging = 0;
+            DEBUG(dbgSch, "\n##Tick ["<< kernel->stats->totalTicks << "]:Thread[" << t->getID() 
+                <<"] is removed from queue L3 " << "// "<< t->getName());
+            DEBUG(dbgSch, "\n##Tick ["<< kernel->stats->totalTicks << "]:Thread[" << t->getID() 
+                <<"] is now selected for execution" << "// "<< t->getName());
+            return t;
+        }
+        else
+        {
+            return kernel->currentThread;
+        }
     }
     else
     {
@@ -181,19 +231,19 @@ Scheduler::FindNextToRun()
 
 //----------------------------------------------------------------------
 // Scheduler::Run
-// 	Dispatch the CPU to nextThread.  Save the state of the old thread,
-//	and load the state of the new thread, by calling the machine
-//	dependent context switch routine, SWITCH.
+//  Dispatch the CPU to nextThread.  Save the state of the old thread,
+//  and load the state of the new thread, by calling the machine
+//  dependent context switch routine, SWITCH.
 //
 //      Note: we assume the state of the previously running thread has
-//	already been changed from running to blocked or ready (depending).
+//  already been changed from running to blocked or ready (depending).
 // Side effect:
-//	The global variable kernel->currentThread becomes nextThread.
+//  The global variable kernel->currentThread becomes nextThread.
 //
-//	"nextThread" is the thread to be put into the CPU.
-//	"finishing" is set if the current thread is to be deleted
-//		once we're no longer running on its stack
-//		(when the next thread starts running)
+//  "nextThread" is the thread to be put into the CPU.
+//  "finishing" is set if the current thread is to be deleted
+//      once we're no longer running on its stack
+//      (when the next thread starts running)
 //----------------------------------------------------------------------
 
 void Scheduler::Run(Thread *nextThread, bool finishing)
@@ -216,44 +266,54 @@ void Scheduler::Run(Thread *nextThread, bool finishing)
 
     oldThread->CheckOverflow(); // check if the old thread
                                 // had an undetected stack overflow
+    if(oldThread->getStatus() != BLOCKED)
+    {
+        DEBUG(dbgSch, "\n##Tick ["<< kernel->stats->totalTicks << "]:Thread[" << oldThread->getID() <<"] is replaced, and it has executed[" << oldThread->cur_cpu_burst << "] ticks"<< "// "<< oldThread->getName());
+    }
+
 
     kernel->currentThread = nextThread; // switch to the next thread
     nextThread->setStatus(RUNNING);     // nextThread is now running
 
     DEBUG(dbgThread, "Switching from: " << oldThread->getName() << " to: " << nextThread->getName());
-
+               
     // This is a machine-dependent assembly language routine defined
     // in switch.s.  You may have to think
     // a bit to figure out what happens after this, both from the point
     // of view of the thread and from the perspective of the "outside world".
 
-    SWITCH(oldThread, nextThread);
+    // Modified !!!!!!!!!!!!!!
+    if(nextThread != oldThread){
+    // if(TRUE){
+        SWITCH(oldThread, nextThread);
+        
+        // we're back, running oldThread
 
-    // we're back, running oldThread
+        // interrupts are off when we return from switch!
+        ASSERT(kernel->interrupt->getLevel() == IntOff);
 
-    // interrupts are off when we return from switch!
-    ASSERT(kernel->interrupt->getLevel() == IntOff);
+        DEBUG(dbgThread, "Now in thread: " << oldThread->getName());
 
-    DEBUG(dbgThread, "Now in thread: " << oldThread->getName());
-
-    CheckToBeDestroyed(); // check if thread we were running
-                          // before this one has finished
-                          // and needs to be cleaned up
-    if (oldThread->space != NULL)
-    {                                  // if there is an address space
-        oldThread->RestoreUserState(); // to restore, do it.
-        oldThread->space->RestoreState();
+        CheckToBeDestroyed(); // check if thread we were running
+                              // before this one has finished
+                              // and needs to be cleaned up
+        if (oldThread->space != NULL)
+        {                                  // if there is an address space
+            oldThread->RestoreUserState(); // to restore, do it.
+            oldThread->space->RestoreState();
+        }
     }
+    // Modified !!!!!!!!!!!!!!
 
-    // cout << "Finish Scheduler::Run()" << endl;
+    cout << "!!!Finish Scheduler::Run() "  << kernel->currentThread->getName()<< endl;
 }
 
 //----------------------------------------------------------------------
 // Scheduler::CheckToBeDestroyed
-// 	If the old thread gave up the processor because it was finishing,
-// 	we need to delete its carcass.  Note we cannot delete the thread
-// 	before now (for example, in Thread::Finish()), because up to this
-// 	point, we were still running on the old thread's stack!
+//  If the old thread gave up the processor because it was finishing,
+//  we need to delete its carcass.  Note we cannot delete the thread
+//  before now (for example, in Thread::Finish()), because up to this
+//  point, we were still running on the old thread's stack!
 //----------------------------------------------------------------------
 
 void Scheduler::CheckToBeDestroyed()
@@ -267,24 +327,89 @@ void Scheduler::CheckToBeDestroyed()
 
 //----------------------------------------------------------------------
 // Scheduler::Print
-// 	Print the scheduler state -- in other words, the contents of
-//	the ready list.  For debugging.
+//  Print the scheduler state -- in other words, the contents of
+//  the ready list.  For debugging.
 //----------------------------------------------------------------------
 void Scheduler::Print()
 {
     cout << "Ready list contents:\n";
-    // readyList->Apply(ThreadPrint);
     cout << "L1: ";
     L1_list->Apply(ThreadPrint);
     cout << "\nL2: ";
     L2_list->Apply(ThreadPrint);
     cout << "\nL3: ";
     L3_list->Apply(ThreadPrint);
-    cout << "\n";
 }
 
-int exponential_average(int cur_exec_time, int previous_exec_time)
+void Scheduler::Aging()
 {
-    int approximate = 0.5 * cur_exec_time + 0.5 * previous_exec_time;
-    return approximate;
+    cout << "!!!!!!!!Aging!!!!!!!!!" << endl;
+    // SortedList<Thread *> temp_L1 = new SortedList<Thread *>(compare_time);     //shortest job first
+    SortedList<Thread *> *temp_L2 = new SortedList<Thread *>(compare_priority); // highest priority first
+    List<Thread *> *temp_L3 = new List<Thread *>;
+    // we do not age L1 since priority does not matters in L1
+    // if (! (L1_list->IsEmpty()))
+    // {
+    //     t = L1_list->RemoveFront();
+        
+    // }
+    // else 
+    Thread* t;
+    // Iterate through L2
+    while (! (L2_list->IsEmpty()))
+    {
+        t = L2_list->RemoveFront();
+        t->aging += 100; // currently, only timer will call Aging every 100 ticks
+        
+        if(t->aging >= 1500)
+        {
+            int new_priority = t->priority + 10 * (t->aging/1500);
+            DEBUG(dbgSch, "\n##Tick ["<< kernel->stats->totalTicks << "]:Thread[" << t->getID() 
+                <<"] Changes its priority from [" << t->priority <<"] to [" << new_priority << "]" <<"// "<< t->getName());
+            t->priority = new_priority;
+            t->aging -= 1500 * (t->aging/1500);
+        }
+        if(t->priority >= 100)
+        {
+            DEBUG(dbgSch, "\n##Tick ["<< kernel->stats->totalTicks << "]:Thread[" << t->getID() <<"] is removed from queue L2 " << "// "<< t->getName());
+            L1_list->Insert(t);
+            DEBUG(dbgSch, "\n##Tick ["<< kernel->stats->totalTicks << "]:Thread[" << t->getID() <<"] is inserted into queue L1 " << "// "<< t->getName());
+        
+        }
+        else
+        {
+            temp_L2->Insert(t);
+        }
+    }
+    delete L2_list;
+    L2_list = temp_L2;
+
+    // Iterate through L3
+    while (! (L3_list->IsEmpty()))
+    {
+        t = L3_list->RemoveFront();
+        t->aging += 100; // currently, only timer will call Aging every 100 ticks
+        if(t->aging >= 1500)
+        {
+            int new_priority = t->priority + 10 * (t->aging/1500);
+            DEBUG(dbgSch, "\n##Tick ["<< kernel->stats->totalTicks << "]:Thread[" << t->getID() 
+                <<"] Changes its priority from [" << t->priority <<"] to [" << new_priority << "]" <<"// "<< t->getName());
+            t->priority = new_priority;
+            t->aging -= 1500 * (t->aging/1500);
+        }
+        if(t->priority >= 100)
+        {
+            DEBUG(dbgSch, "\n##Tick ["<< kernel->stats->totalTicks << "]:Thread[" << t->getID() <<"] is removed from queue L3 " << "// "<< t->getName());
+            L2_list->Insert(t);
+            DEBUG(dbgSch, "\n##Tick ["<< kernel->stats->totalTicks << "]:Thread[" << t->getID() <<"] is inserted into queue L2 " << "// "<< t->getName());
+        
+        }
+        else
+        {
+            temp_L3->Append(t);
+        }
+    }
+    delete L3_list;
+    L3_list = temp_L3;
+    return;
 }

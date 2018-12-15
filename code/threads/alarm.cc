@@ -51,5 +51,7 @@ void Alarm::CallBack()
     if (status != IdleMode)
     {
         interrupt->YieldOnReturn();
+        kernel->scheduler->Aging();
+        interrupt->timer_interrupt = TRUE;
     }
 }

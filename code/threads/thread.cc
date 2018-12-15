@@ -42,6 +42,7 @@ Thread::Thread(char *threadName, int threadID, int priority_)
     priority = priority_;
     approximate_burst = 0;  // tunable hyperparamter
     cur_cpu_burst = 0;
+    aging = 0;
     cout << "Thread:" << threadName <<" id: " << threadID << " priority: " << priority << endl;
   // Modified !!!!!!!!!!!!!!
   
@@ -64,7 +65,9 @@ Thread::Thread(char *threadName, int threadID)
     
   // Modified !!!!!!!!!!!!!!
     priority = 0;
-
+    approximate_burst = 0;  // tunable hyperparamter
+    cur_cpu_burst = 0;
+    aging = 0;
     cout << "Thread:" << threadName <<" id: " << threadID << " priority: " << priority << endl;
   // Modified !!!!!!!!!!!!!!
 
@@ -238,12 +241,24 @@ void Thread::Yield()
     DEBUG(dbgThread, "Yielding thread: " << name);
 
     nextThread = kernel->scheduler->FindNextToRun();
+    if(kernel->interrupt->timer_interrupt)
+        cout << "**Yield by Timer" << endl;
     // if (nextThread != NULL && nextThread != kernel->currentThread)
     if (nextThread != NULL)
     {
-        kernel->scheduler->ReadyToRun(this);
+        if(nextThread != kernel->currentThread)
+        {
+            kernel->scheduler->ReadyToRun(this);
+        }
+        else
+        {
+            cout << "**Next Thread = self" << endl;
+        }
+        cout << "Call scheduler::run() in thread::yield()\n";
         kernel->scheduler->Run(nextThread, FALSE);
     }
+    else
+        cout << "**Next Thread == NULL" << endl;
     (void)kernel->interrupt->SetLevel(oldLevel);
     // cout << "Finish yield" << endl;
 }
@@ -279,6 +294,7 @@ void Thread::Sleep(bool finishing)
     DEBUG(dbgTraCode, "In Thread::Sleep, Sleeping thread: " << name << ", " << kernel->stats->totalTicks);
 
     status = BLOCKED;
+    
     //cout << "debug Thread::Sleep " << name << "wait for Idle\n";
     while ((nextThread = kernel->scheduler->FindNextToRun()) == NULL)
     {
@@ -286,10 +302,25 @@ void Thread::Sleep(bool finishing)
     }
     // returns when it's time for us to run
     // if(kernel->currentThread != nextThread)
+
+    // Modified !!!!!!!!!!!!!!
+    // Sleep = end of cpu burst, update apprximate burst and reset current burst
+    DEBUG(dbgSch, "\n##Tick ["<< kernel->stats->totalTicks << "]:Thread[" << kernel->currentThread->getID() 
+        <<"] is replaced, and it has executed[" << kernel->currentThread->cur_cpu_burst << "] ticks"<< "// "<< kernel->currentThread->getName());
+    UpdateBurstTime();
+    // Modified !!!!!!!!!!!!!!
+    cout << "Call scheduler::run() in thread::sleep()\n";
     kernel->scheduler->Run(nextThread, finishing);
     // kernel->currentThread->setStatus(RUNNING);
     // cout << "Finish sleep" << endl;
     // cout << kernel->currentThread->getStatus() << endl;
+}
+
+void Thread::UpdateBurstTime()
+{
+    double decayRate = 0.5;
+    approximate_burst = decayRate*cur_cpu_burst + (1-decayRate)*approximate_burst;
+    cur_cpu_burst = 0;
 }
 
 //----------------------------------------------------------------------

@@ -66,6 +66,10 @@ enum ThreadStatus
   ZOMBIE
 };
 
+// Modified !!!!!!!!!!!!!!
+// double decayRate = 0.5;
+// Modified !!!!!!!!!!!!!!
+
 // The following class defines a "thread control block" -- which
 // represents a single thread of execution.
 //
@@ -113,6 +117,10 @@ public:
   int getID() { return (ID); }
   void Print() { cout << name; }
   void SelfTest(); // test whether thread impl is working
+
+  // Modified !!!!!!!!!!!!!!
+  void UpdateBurstTime();
+  // Modified !!!!!!!!!!!!!!
 
   
   // Modified !!!!!!!!!!!!!!

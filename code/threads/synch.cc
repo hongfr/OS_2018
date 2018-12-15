@@ -80,13 +80,15 @@ void Semaphore::P()
 
     // disable interrupts
     IntStatus oldLevel = interrupt->SetLevel(IntOff);
-
+    cout << "Caller: " << currentThread->getName() << endl;
+    int i=0;
     while (value == 0)
     {                                 // semaphore not available
 
-        // cout << "Go To Sleep:" << currentThread->getName() << endl;
+        cout << "##Wait Queue push" << currentThread->getName() << "  " << i << endl;
         queue->Append(currentThread); // so go to sleep
         currentThread->Sleep(FALSE);
+        i++;
     }
 
     // cout << "!!!Finish P()" << endl;
@@ -118,7 +120,9 @@ void Semaphore::V()
     // cout << "queue front()" << queue->Front()->getName() << endl;
     if (!queue->IsEmpty())
     { // make thread ready.
-        kernel->scheduler->ReadyToRun(queue->RemoveFront());
+        Thread* t = queue->RemoveFront();
+        kernel->scheduler->ReadyToRun(t);
+        cout << "## Wait Queue Pop out " << t->getName() << endl;
     }
     value++;
     // re-enable interrupts
