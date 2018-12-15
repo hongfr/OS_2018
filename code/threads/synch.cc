@@ -85,7 +85,7 @@ void Semaphore::P()
     while (value == 0)
     {                                 // semaphore not available
 
-        cout << "##Wait Queue push" << currentThread->getName() << "  " << i << endl;
+        cout << "## Wait Queue push " << currentThread->getName() << "  " << i << endl;
         queue->Append(currentThread); // so go to sleep
         currentThread->Sleep(FALSE);
         i++;

@@ -145,7 +145,7 @@ Scheduler::FindNextToRun()
     {
 
         bool removeFront = FALSE;
-        if(kernel->currentThread->getStatus() == BLOCKED)
+        if(kernel->currentThread->getStatus() != RUNNING)
         {
             removeFront = TRUE;
         }
@@ -173,6 +173,7 @@ Scheduler::FindNextToRun()
         }
         else
         {
+            cout << "Return current Thread" << endl;
             return kernel->currentThread;
         }
     }
@@ -180,7 +181,7 @@ Scheduler::FindNextToRun()
     else if (! (L2_list->IsEmpty()))
     {
         // Sleeping Thread
-        if(kernel->currentThread->getStatus() == BLOCKED)
+        if(kernel->currentThread->getStatus() != RUNNING)
         {
             t = L2_list->RemoveFront();
             t->aging = 0;
@@ -193,14 +194,15 @@ Scheduler::FindNextToRun()
         }
         else
         {
+            cout << "Return current Thread" << endl;
             return kernel->currentThread;
         }
         
     }
     else if (! (L3_list->IsEmpty()))
     {
-        // Timer interrupt and running thread is in L3                      or             sleeping thread
-        if(kernel->interrupt->timer_interrupt && (kernel->currentThread->priority < 50) || kernel->currentThread->getStatus() == BLOCKED)
+        // Timer interrupt and running thread is in L3                                   or             sleeping thread
+        if(kernel->interrupt->timer_interrupt && (kernel->currentThread->priority < 50) || kernel->currentThread->getStatus() != RUNNING)
         {
             t = L3_list->RemoveFront();
             t->aging = 0;
@@ -212,6 +214,7 @@ Scheduler::FindNextToRun()
         }
         else
         {
+            cout << "Return current Thread" << endl;
             return kernel->currentThread;
         }
     }
@@ -266,7 +269,7 @@ void Scheduler::Run(Thread *nextThread, bool finishing)
 
     oldThread->CheckOverflow(); // check if the old thread
                                 // had an undetected stack overflow
-    if(oldThread->getStatus() != BLOCKED)
+    if(oldThread->getStatus() == RUNNING)
     {
         DEBUG(dbgSch, "\n##Tick ["<< kernel->stats->totalTicks << "]:Thread[" << oldThread->getID() <<"] is replaced, and it has executed[" << oldThread->cur_cpu_burst << "] ticks"<< "// "<< oldThread->getName());
     }

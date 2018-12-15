@@ -294,7 +294,7 @@ void Thread::Sleep(bool finishing)
     DEBUG(dbgTraCode, "In Thread::Sleep, Sleeping thread: " << name << ", " << kernel->stats->totalTicks);
 
     status = BLOCKED;
-    
+    // cout << "Status Should Be BLOCKED " << kernel->currentThread->getStatus() << endl;
     //cout << "debug Thread::Sleep " << name << "wait for Idle\n";
     while ((nextThread = kernel->scheduler->FindNextToRun()) == NULL)
     {
@@ -303,16 +303,19 @@ void Thread::Sleep(bool finishing)
     // returns when it's time for us to run
     // if(kernel->currentThread != nextThread)
 
+    // cout << "After interrupt::Idle Status Should Be BLOCKED " << kernel->currentThread->getStatus() << endl;
     // Modified !!!!!!!!!!!!!!
     // Sleep = end of cpu burst, update apprximate burst and reset current burst
     DEBUG(dbgSch, "\n##Tick ["<< kernel->stats->totalTicks << "]:Thread[" << kernel->currentThread->getID() 
         <<"] is replaced, and it has executed[" << kernel->currentThread->cur_cpu_burst << "] ticks"<< "// "<< kernel->currentThread->getName());
     UpdateBurstTime();
+
+    // cout << "After UpdateBurstTime Status Should Be BLOCKED " << kernel->currentThread->getStatus() << endl;
     // Modified !!!!!!!!!!!!!!
     cout << "Call scheduler::run() in thread::sleep()\n";
     kernel->scheduler->Run(nextThread, finishing);
     // kernel->currentThread->setStatus(RUNNING);
-    // cout << "Finish sleep" << endl;
+    cout << "Finish sleep" << endl;
     // cout << kernel->currentThread->getStatus() << endl;
 }
 
