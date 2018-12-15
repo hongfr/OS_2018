@@ -40,6 +40,8 @@ Thread::Thread(char *threadName, int threadID, int priority_)
     
   // Modified !!!!!!!!!!!!!!
     priority = priority_;
+    approximate_burst = 0;  // tunable hyperparamter
+    cur_cpu_burst = 0;
     cout << "Thread:" << threadName <<" id: " << threadID << " priority: " << priority << endl;
   // Modified !!!!!!!!!!!!!!
   
@@ -203,6 +205,8 @@ void Thread::Finish()
 
     DEBUG(dbgThread, "Finishing thread: " << name);
     Sleep(TRUE); // invokes SWITCH
+    cout << "Should not reached" << endl;
+    ASSERTNOTREACHED();
     // not reached
 }
 
@@ -234,13 +238,14 @@ void Thread::Yield()
     DEBUG(dbgThread, "Yielding thread: " << name);
 
     nextThread = kernel->scheduler->FindNextToRun();
-    if (nextThread != NULL && nextThread != kernel->currentThread)
+    // if (nextThread != NULL && nextThread != kernel->currentThread)
+    if (nextThread != NULL)
     {
         kernel->scheduler->ReadyToRun(this);
         kernel->scheduler->Run(nextThread, FALSE);
     }
     (void)kernel->interrupt->SetLevel(oldLevel);
-    cout << "Finish yield" << endl;
+    // cout << "Finish yield" << endl;
 }
 
 //----------------------------------------------------------------------
@@ -283,8 +288,8 @@ void Thread::Sleep(bool finishing)
     // if(kernel->currentThread != nextThread)
     kernel->scheduler->Run(nextThread, finishing);
     // kernel->currentThread->setStatus(RUNNING);
-    cout << "Finish sleep" << endl;
-    cout << kernel->currentThread->getStatus() << endl;
+    // cout << "Finish sleep" << endl;
+    // cout << kernel->currentThread->getStatus() << endl;
 }
 
 //----------------------------------------------------------------------

@@ -116,11 +116,10 @@ public:
 
   
   // Modified !!!!!!!!!!!!!!
-  int previous_cpu_burst;
+  int approximate_burst;
   int cur_cpu_burst;
   int priority;
   int aging;
-  int approximate_burst;
   // Modified !!!!!!!!!!!!!!
 
 private:

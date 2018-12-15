@@ -192,7 +192,7 @@ int main(int argc, char **argv)
     for (i = 1; i < argc; i++)
     {
         //debug
-        cout << "argc" << i << endl;
+        // cout << "argc" << i << endl;
         if (strcmp(argv[i], "-d") == 0)
         {
             ASSERT(i + 1 < argc); // next argument is debug string

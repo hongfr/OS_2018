@@ -66,7 +66,7 @@ Scheduler::Scheduler()
     L3_list = new List<Thread *>;
 
     // Modified !!!!!!!!!!!!!!
-    readyList = new List<Thread *>;
+    // readyList = new List<Thread *>;
     toBeDestroyed = NULL;
 }
 
@@ -85,7 +85,7 @@ Scheduler::~Scheduler()
     //     delete L2_list[i];
     // }
     delete L3_list;
-    delete readyList;
+    // delete readyList;
 }
 
 //----------------------------------------------------------------------
@@ -151,9 +151,9 @@ Scheduler::FindNextToRun()
     {
         bool currentThread_in_L2 = (kernel->currentThread->priority / 50 == 1);
         bool currentThread_not_sleep_or_finish = (kernel->currentThread->getStatus() != BLOCKED);
-        if(currentThread_in_L2 && currentThread_not_sleep_or_finish) // current thread in L2 and running
-            cout << "currentThread_in_L2 && currentThread_not_sleep_or_finish" << endl;
-            return kernel->currentThread;                            // do not reschedule (L2 is non-preemptive)
+        // if(currentThread_in_L2 && currentThread_not_sleep_or_finish) // current thread in L2 and running
+        //     cout << "!!!currentThread_in_L2 && currentThread_not_sleep_or_finish" << endl;
+        //     return kernel->currentThread;                            // do not reschedule (L2 is non-preemptive)
 
         t = L2_list->RemoveFront();
         DEBUG(dbgSch, "\n##Tick ["<< kernel->stats->totalTicks << "]:Thread[" << t->getID() <<"] is removed from queue L2 " << "// "<< t->getName());
@@ -245,7 +245,7 @@ void Scheduler::Run(Thread *nextThread, bool finishing)
         oldThread->space->RestoreState();
     }
 
-    cout << "Finish Scheduler::Run()" << endl;
+    // cout << "Finish Scheduler::Run()" << endl;
 }
 
 //----------------------------------------------------------------------
@@ -273,7 +273,14 @@ void Scheduler::CheckToBeDestroyed()
 void Scheduler::Print()
 {
     cout << "Ready list contents:\n";
-    readyList->Apply(ThreadPrint);
+    // readyList->Apply(ThreadPrint);
+    cout << "L1: ";
+    L1_list->Apply(ThreadPrint);
+    cout << "\nL2: ";
+    L2_list->Apply(ThreadPrint);
+    cout << "\nL3: ";
+    L3_list->Apply(ThreadPrint);
+    cout << "\n";
 }
 
 int exponential_average(int cur_exec_time, int previous_exec_time)

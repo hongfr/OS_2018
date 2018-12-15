@@ -169,6 +169,7 @@ void Interrupt::OneTick()
     {
         stats->totalTicks += UserTick;
         stats->userTicks += UserTick;
+        kernel->currentThread->cur_cpu_burst += UserTick;
     }
     DEBUG(dbgInt, "== Tick " << stats->totalTicks << " ==");
 
@@ -373,6 +374,7 @@ bool Interrupt::CheckIfDue(bool advanceClock)
         next = pending->RemoveFront(); // pull interrupt off list
         DEBUG(dbgTraCode, "In Interrupt::CheckIfDue, into callOnInterrupt->CallBack, " << stats->totalTicks);
         next->callOnInterrupt->CallBack(); // call the interrupt handler
+        YieldOnReturn();    // All interrupt are IO, call scheduler here
         DEBUG(dbgTraCode, "In Interrupt::CheckIfDue, return from callOnInterrupt->CallBack, " << stats->totalTicks);
         delete next;
     } while (!pending->IsEmpty() && (pending->Front()->when <= stats->totalTicks));

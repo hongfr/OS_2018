@@ -60,6 +60,7 @@ char SynchConsoleInput::GetChar()
 
 void SynchConsoleInput::CallBack()
 {
+    cout << "SynchConsoleInput" << endl;
     waitFor->V();
 }
 
