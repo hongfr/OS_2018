@@ -242,7 +242,7 @@ void Thread::Yield()
 
     nextThread = kernel->scheduler->FindNextToRun();
     if(kernel->interrupt->timer_interrupt)
-        cout << "**Yield by Timer" << endl;
+        // cout << "**Yield by Timer" << endl;
     // if (nextThread != NULL && nextThread != kernel->currentThread)
     if (nextThread != NULL)
     {
@@ -254,11 +254,11 @@ void Thread::Yield()
         {
             cout << "**Next Thread = self" << endl;
         }
-        cout << "Call scheduler::run() in thread::yield()\n";
+        // cout << "Call scheduler::run() in thread::yield()\n";
         kernel->scheduler->Run(nextThread, FALSE);
     }
-    else
-        cout << "**Next Thread == NULL" << endl;
+    // else
+    //     cout << "**Next Thread == NULL" << endl;
     (void)kernel->interrupt->SetLevel(oldLevel);
     // cout << "Finish yield" << endl;
 }
@@ -306,16 +306,16 @@ void Thread::Sleep(bool finishing)
     // cout << "After interrupt::Idle Status Should Be BLOCKED " << kernel->currentThread->getStatus() << endl;
     // Modified !!!!!!!!!!!!!!
     // Sleep = end of cpu burst, update apprximate burst and reset current burst
-    DEBUG(dbgSch, "\n##Tick ["<< kernel->stats->totalTicks << "]:Thread[" << kernel->currentThread->getID() 
+    DEBUG(dbgSch, "## Tick ["<< kernel->stats->totalTicks << "]:Thread[" << kernel->currentThread->getID() 
         <<"] is replaced, and it has executed[" << kernel->currentThread->cur_cpu_burst << "] ticks"<< "// "<< kernel->currentThread->getName());
     UpdateBurstTime();
 
     // cout << "After UpdateBurstTime Status Should Be BLOCKED " << kernel->currentThread->getStatus() << endl;
     // Modified !!!!!!!!!!!!!!
-    cout << "Call scheduler::run() in thread::sleep()\n";
+    // cout << "Call scheduler::run() in thread::sleep()\n";
     kernel->scheduler->Run(nextThread, finishing);
     // kernel->currentThread->setStatus(RUNNING);
-    cout << "Finish sleep" << endl;
+    // cout << "Finish sleep" << endl;
     // cout << kernel->currentThread->getStatus() << endl;
 }
 

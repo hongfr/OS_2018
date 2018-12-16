@@ -107,17 +107,17 @@ void Scheduler::ReadyToRun(Thread *thread)
     // Modified !!!!!!!!!!!!!!
     if (thread->priority < 50)
     {
-        DEBUG(dbgSch, "\n##Tick ["<< kernel->stats->totalTicks << "]:Thread[" << thread->getID() <<"] is inserted into queue L3 " << "// "<< thread->getName());
+        DEBUG(dbgSch, "\n## Tick ["<< kernel->stats->totalTicks << "]:Thread[" << thread->getID() <<"] is inserted into queue L3 " << "// "<< thread->getName());
         L3_list->Append(thread);
     }
     else if (thread->priority < 100)
     {
-        DEBUG(dbgSch, "\n##Tick ["<< kernel->stats->totalTicks << "]:Thread[" << thread->getID() <<"] is inserted into queue L2 " << "// "<< thread->getName());
+        DEBUG(dbgSch, "\n## Tick ["<< kernel->stats->totalTicks << "]:Thread[" << thread->getID() <<"] is inserted into queue L2 " << "// "<< thread->getName());
         L2_list->Insert(thread);
     }
     else if (thread->priority < 150)
     {
-        DEBUG(dbgSch, "\n##Tick ["<< kernel->stats->totalTicks << "]:Thread[" << thread->getID() <<"] is inserted into queue L1 " << "// "<< thread->getName());
+        DEBUG(dbgSch, "\n## Tick ["<< kernel->stats->totalTicks << "]:Thread[" << thread->getID() <<"] is inserted into queue L1 " << "// "<< thread->getName());
         L1_list->Insert(thread);
     }
     else
@@ -164,16 +164,16 @@ Scheduler::FindNextToRun()
         {
             t = L1_list->RemoveFront(); 
             t->aging = 0;
-            DEBUG(dbgSch, "\n##Tick ["<< kernel->stats->totalTicks << "]:Thread[" << t->getID() 
+            DEBUG(dbgSch, "## Tick ["<< kernel->stats->totalTicks << "]:Thread[" << t->getID() 
                 <<"] is removed from queue L1 " << "// "<< t->getName());
-            // DEBUG(dbgSch, "\n##Tick ["<< kernel->stats->totalTicks << "]:Thread[" << t->getID() 
-            //     <<"] is now selected for execution" << "// "<< t->getName());
+            DEBUG(dbgSch, "##Tick ["<< kernel->stats->totalTicks << "]:Thread[" << t->getID() 
+                <<"] is now selected for execution" << "// "<< t->getName());
     
             return t;        
         }
         else
         {
-            cout << "Return current Thread" << endl;
+            // cout << "Return current Thread" << endl;
             return kernel->currentThread;
         }
     }
@@ -185,16 +185,16 @@ Scheduler::FindNextToRun()
         {
             t = L2_list->RemoveFront();
             t->aging = 0;
-            DEBUG(dbgSch, "\n##Tick ["<< kernel->stats->totalTicks << "]:Thread[" << t->getID() 
+            DEBUG(dbgSch, "## Tick ["<< kernel->stats->totalTicks << "]:Thread[" << t->getID() 
                 <<"] is removed from queue L2 " << "// "<< t->getName());
             
-            DEBUG(dbgSch, "\n##Tick ["<< kernel->stats->totalTicks << "]:Thread[" << t->getID() 
+            DEBUG(dbgSch, "## Tick ["<< kernel->stats->totalTicks << "]:Thread[" << t->getID() 
                 <<"] is now selected for execution" << "// "<< t->getName());
             return t;
         }
         else
         {
-            cout << "Return current Thread" << endl;
+            // cout << "Return current Thread" << endl;
             return kernel->currentThread;
         }
         
@@ -206,15 +206,15 @@ Scheduler::FindNextToRun()
         {
             t = L3_list->RemoveFront();
             t->aging = 0;
-            DEBUG(dbgSch, "\n##Tick ["<< kernel->stats->totalTicks << "]:Thread[" << t->getID() 
+            DEBUG(dbgSch, "## Tick ["<< kernel->stats->totalTicks << "]:Thread[" << t->getID() 
                 <<"] is removed from queue L3 " << "// "<< t->getName());
-            DEBUG(dbgSch, "\n##Tick ["<< kernel->stats->totalTicks << "]:Thread[" << t->getID() 
+            DEBUG(dbgSch, "## Tick ["<< kernel->stats->totalTicks << "]:Thread[" << t->getID() 
                 <<"] is now selected for execution" << "// "<< t->getName());
             return t;
         }
         else
         {
-            cout << "Return current Thread" << endl;
+            // cout << "Return current Thread" << endl;
             return kernel->currentThread;
         }
     }
@@ -271,7 +271,7 @@ void Scheduler::Run(Thread *nextThread, bool finishing)
                                 // had an undetected stack overflow
     if(oldThread->getStatus() == RUNNING)
     {
-        DEBUG(dbgSch, "\n##Tick ["<< kernel->stats->totalTicks << "]:Thread[" << oldThread->getID() <<"] is replaced, and it has executed[" << oldThread->cur_cpu_burst << "] ticks"<< "// "<< oldThread->getName());
+        DEBUG(dbgSch, "## Tick ["<< kernel->stats->totalTicks << "]:Thread[" << oldThread->getID() <<"] is replaced, and it has executed[" << oldThread->cur_cpu_burst << "] ticks"<< "// "<< oldThread->getName());
     }
 
 
@@ -308,7 +308,7 @@ void Scheduler::Run(Thread *nextThread, bool finishing)
     }
     // Modified !!!!!!!!!!!!!!
 
-    cout << "!!!Finish Scheduler::Run() "  << kernel->currentThread->getName()<< endl;
+    // cout << "!!!Finish Scheduler::Run() "  << kernel->currentThread->getName()<< endl;
 }
 
 //----------------------------------------------------------------------
@@ -346,7 +346,7 @@ void Scheduler::Print()
 
 void Scheduler::Aging()
 {
-    cout << "!!!!!!!!Aging!!!!!!!!!" << endl;
+    // cout << "!!!!!!!!Aging!!!!!!!!!" << endl;f
     // SortedList<Thread *> temp_L1 = new SortedList<Thread *>(compare_time);     //shortest job first
     SortedList<Thread *> *temp_L2 = new SortedList<Thread *>(compare_priority); // highest priority first
     List<Thread *> *temp_L3 = new List<Thread *>;
@@ -367,16 +367,16 @@ void Scheduler::Aging()
         if(t->aging >= 1500)
         {
             int new_priority = t->priority + 10 * (t->aging/1500);
-            DEBUG(dbgSch, "\n##Tick ["<< kernel->stats->totalTicks << "]:Thread[" << t->getID() 
+            DEBUG(dbgSch, "## Tick ["<< kernel->stats->totalTicks << "]:Thread[" << t->getID() 
                 <<"] Changes its priority from [" << t->priority <<"] to [" << new_priority << "]" <<"// "<< t->getName());
             t->priority = new_priority;
             t->aging -= 1500 * (t->aging/1500);
         }
         if(t->priority >= 100)
         {
-            DEBUG(dbgSch, "\n##Tick ["<< kernel->stats->totalTicks << "]:Thread[" << t->getID() <<"] is removed from queue L2 " << "// "<< t->getName());
+            DEBUG(dbgSch, "## Tick ["<< kernel->stats->totalTicks << "]:Thread[" << t->getID() <<"] is removed from queue L2 " << "// "<< t->getName());
             L1_list->Insert(t);
-            DEBUG(dbgSch, "\n##Tick ["<< kernel->stats->totalTicks << "]:Thread[" << t->getID() <<"] is inserted into queue L1 " << "// "<< t->getName());
+            DEBUG(dbgSch, "## Tick ["<< kernel->stats->totalTicks << "]:Thread[" << t->getID() <<"] is inserted into queue L1 " << "// "<< t->getName());
         
         }
         else
@@ -395,16 +395,16 @@ void Scheduler::Aging()
         if(t->aging >= 1500)
         {
             int new_priority = t->priority + 10 * (t->aging/1500);
-            DEBUG(dbgSch, "\n##Tick ["<< kernel->stats->totalTicks << "]:Thread[" << t->getID() 
+            DEBUG(dbgSch, "## Tick ["<< kernel->stats->totalTicks << "]:Thread[" << t->getID() 
                 <<"] Changes its priority from [" << t->priority <<"] to [" << new_priority << "]" <<"// "<< t->getName());
             t->priority = new_priority;
             t->aging -= 1500 * (t->aging/1500);
         }
         if(t->priority >= 100)
         {
-            DEBUG(dbgSch, "\n##Tick ["<< kernel->stats->totalTicks << "]:Thread[" << t->getID() <<"] is removed from queue L3 " << "// "<< t->getName());
+            DEBUG(dbgSch, "## Tick ["<< kernel->stats->totalTicks << "]:Thread[" << t->getID() <<"] is removed from queue L3 " << "// "<< t->getName());
             L2_list->Insert(t);
-            DEBUG(dbgSch, "\n##Tick ["<< kernel->stats->totalTicks << "]:Thread[" << t->getID() <<"] is inserted into queue L2 " << "// "<< t->getName());
+            DEBUG(dbgSch, "## Tick ["<< kernel->stats->totalTicks << "]:Thread[" << t->getID() <<"] is inserted into queue L2 " << "// "<< t->getName());
         
         }
         else
